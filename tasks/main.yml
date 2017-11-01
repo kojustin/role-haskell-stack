@@ -1,0 +1,35 @@
+# Tasks to install Haskell Stack on OSX.
+---
+
+### Install Haskell Stack ###
+- name: "Check to see if Haskell Stack is installed"
+  command: which stack
+  register: haskell_stack_check
+  changed_when: False
+  ignore_errors: true
+  when: haskell_stack_bin_dir is defined
+
+- name: "Download Haskell Stack Installer"
+  get_url: url=https://get.haskellstack.org/ dest={{tmp_dir}}/haskell-stack-script.sh
+  when: haskell_stack_bin_dir is defined and haskell_stack_check.failed
+
+- name: "Run Haskell Stack Installer"
+  command: sh {{tmp_dir}}/haskell-stack-script.sh
+  when: haskell_stack_bin_dir is defined and haskell_stack_check.failed
+
+### Install Stack apps ###
+
+# The syntax for using a loop with a `register` variable is kind of weird, see
+#   http://docs.ansible.com/ansible/latest/playbooks_loops.html#using-register-with-a-loop
+- name: "Check for apps to be installed"
+  command: which {{ item }}
+  with_items: "{{ haskell_stack_apps_to_install }}"
+  changed_when: False
+  ignore_errors: true
+  register: which_checks
+  when: haskell_stack_bin_dir is defined
+
+- name: "Install apps"
+  command: stack install {{ item.cmd[1] }}
+  when: item.failed
+  with_items: "{{ which_checks.results }}"

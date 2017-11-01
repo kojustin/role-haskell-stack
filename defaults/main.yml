@@ -1,0 +1,15 @@
+# Defaults for role-haskell-stack
+---
+
+# Directory where the file stack binary will be loaded.
+haskell_stack_bin_dir: /usr/local/bin
+
+# Temporary directory to work in.
+tmp_dir: /tmp/
+
+# Haskell Stack programs to install
+haskell_stack_apps_to_install:
+  - ghc-mod
+  - hindent
+  - hlint
+  - stylish-haskell
